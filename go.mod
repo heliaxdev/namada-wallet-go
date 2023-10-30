@@ -1,4 +1,4 @@
-module namada-wallet
+module github.com/heliaxdev/namada-wallet-go
 
 go 1.21.3
 

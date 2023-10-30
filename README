@@ -7,4 +7,4 @@ usage
 =====
 
 $ go build
-$ ./namada-wallet -help
+$ ./namada-wallet-go -help
