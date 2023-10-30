@@ -1,0 +1,10 @@
+namada-wallet-go
+================
+
+an alternative namada wallet in go
+
+usage
+=====
+
+$ go build
+$ ./namada-wallet -help
