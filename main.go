@@ -4,6 +4,9 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"os"
+	"strings"
+	"sync"
 	"unsafe"
 
 	"github.com/cosmos/go-bip39"
@@ -17,6 +20,8 @@ var (
 	argPassword string
 )
 
+var found sync.Once
+
 const defaultMnemonicBitSize = 256
 
 func init() {
@@ -28,6 +33,21 @@ func init() {
 }
 
 func main() {
+	suffix := "xd"
+	workers := 8
+
+	for i := 0; i < workers; i++ {
+		go func() {
+			for {
+				checkAddress(suffix)
+			}
+		}()
+	}
+
+	select {}
+}
+
+func checkAddress(suffix string) {
 	mnemonic := getMnemonic()
 	defer clearString(mnemonic)
 	seed := getSeed(mnemonic)
@@ -38,11 +58,16 @@ func main() {
 	pkHash := DerivePkHash(key)
 	addr := DeriveAddress(pkHash)
 
-	fmt.Printf("mnemonic: %s\n", mnemonic)
-	fmt.Printf("public key: %s\n", hex.EncodeToString(key.Public))
-	fmt.Printf("private key: %s\n", hex.EncodeToString(key.Private))
-	fmt.Printf("public key hash: %s\n", hex.EncodeToString(pkHash[:20]))
-	fmt.Printf("address: %s\n", addr)
+	if strings.HasSuffix(addr, suffix) {
+		found.Do(func() {
+			fmt.Printf("mnemonic: %s\n", mnemonic)
+			fmt.Printf("public key: %s\n", hex.EncodeToString(key.Public))
+			fmt.Printf("private key: %s\n", hex.EncodeToString(key.Private))
+			fmt.Printf("public key hash: %s\n", hex.EncodeToString(pkHash[:20]))
+			fmt.Printf("address: %s\n", addr)
+		})
+		os.Exit(0)
+	}
 }
 
 func getHdPath() []HdIndex {
