@@ -23,7 +23,7 @@ func init() {
 	flag.StringVar(&argHdPath, "hdpath", "", "HD derivation path.")
 	flag.StringVar(&argCurve, "curve", "ed25519", "Elliptic curve to use.")
 	flag.StringVar(&argMnemonic, "mnemonic", "", "Mnemonic to derive a seed from. If empty, generate a new mnemonic.")
-	flag.StringVar(&argPassword, "password", "", "Password to use with BIP-44.")
+	flag.StringVar(&argPassword, "password", "", "Password to use with BIP-39.")
 	flag.Parse()
 }
 
