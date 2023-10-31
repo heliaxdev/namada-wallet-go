@@ -4,8 +4,10 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"unsafe"
 
 	"github.com/cosmos/go-bip39"
+	"github.com/tmthrgd/go-memset"
 )
 
 var (
@@ -27,9 +29,12 @@ func init() {
 
 func main() {
 	mnemonic := getMnemonic()
+	defer clearString(mnemonic)
 	seed := getSeed(mnemonic)
+	defer memset.Memset(seed, 0)
 	path := getHdPath()
 	key := DeriveKey(path, argCurve, seed)
+	defer memset.Memset(key.Private, 0)
 	pkHash := DerivePkHash(key)
 	addr := DeriveAddress(pkHash)
 
@@ -74,6 +79,7 @@ func getMnemonic() string {
 			panic(err)
 		}
 		mnemonic, err := bip39.NewMnemonic(entropy)
+		memset.Memset(entropy, 0)
 		if err != nil {
 			panic(err)
 		}
@@ -88,4 +94,8 @@ func getMnemonic() string {
 
 func getSeed(mnemonic string) []byte {
 	return bip39.NewSeed(mnemonic, argPassword)
+}
+
+func clearString(s string) {
+	memset.Memset(unsafe.Slice(unsafe.StringData(s), len(s)), 0)
 }

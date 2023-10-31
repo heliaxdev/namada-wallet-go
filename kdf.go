@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/anyproto/go-slip10"
+	"github.com/tmthrgd/go-memset"
 	"github.com/tyler-smith/go-bip32"
 )
 
@@ -33,10 +34,13 @@ func deriveKeyEd25519(path []HdIndex, seed []byte) *Key {
 		panic(err)
 	}
 	for i := 0; i < len(path); i++ {
-		node, err = node.Derive(path[i])
+		var newNode slip10.Node
+		newNode, err = node.Derive(path[i])
+		memset.Memset(node.RawSeed(), 0)
 		if err != nil {
 			panic(err)
 		}
+		node = newNode
 	}
 	pub, sec := node.Keypair()
 	return &Key{
@@ -52,10 +56,13 @@ func deriveKeySecp256k1(path []HdIndex, seed []byte) *Key {
 		panic(err)
 	}
 	for i := 0; i < len(path); i++ {
-		node, err = node.NewChildKey(path[i])
+		var newNode *bip32.Key
+		newNode, err = node.NewChildKey(path[i])
+		memset.Memset(node.Key, 0)
 		if err != nil {
 			panic(err)
 		}
+		node = newNode
 	}
 	return &Key{
 		Kind:    KindSecp256k1,
