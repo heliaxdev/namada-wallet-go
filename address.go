@@ -6,7 +6,7 @@ import (
 	"github.com/pactus-project/pactus/util/bech32m"
 )
 
-func DerivePkHash(key *Key) [32]byte {
+func encodePubKeyBytes(key *Key) []byte {
 	var rawKey []byte
 
 	switch key.Kind {
@@ -19,7 +19,11 @@ func DerivePkHash(key *Key) [32]byte {
 		copy(rawKey[1:], key.Public)
 	}
 
-	return sha256.Sum256(rawKey)
+	return rawKey
+}
+
+func DerivePkHash(key *Key) [32]byte {
+	return sha256.Sum256(encodePubKeyBytes(key))
 }
 
 func DeriveAddress(digest [32]byte) string {
@@ -32,6 +36,20 @@ func DeriveAddress(digest [32]byte) string {
 	}
 
 	addr, err := bech32m.Encode("tnam", converted)
+	if err != nil {
+		panic(err)
+	}
+
+	return addr
+}
+
+func DerivePublicKey(key *Key) string {
+	converted, err := bech32m.ConvertBits(encodePubKeyBytes(key)[:], 8, 5, true)
+	if err != nil {
+		panic(err)
+	}
+
+	addr, err := bech32m.Encode("tpknam", converted)
 	if err != nil {
 		panic(err)
 	}

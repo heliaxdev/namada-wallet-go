@@ -37,9 +37,10 @@ func main() {
 	defer memset.Memset(key.Private, 0)
 	pkHash := DerivePkHash(key)
 	addr := DeriveAddress(pkHash)
+	pk := DerivePublicKey(key)
 
 	fmt.Printf("mnemonic: %s\n", mnemonic)
-	fmt.Printf("public key: %s\n", hex.EncodeToString(key.Public))
+	fmt.Printf("public key: %s\n", pk)
 	fmt.Printf("private key: %s\n", hex.EncodeToString(key.Private))
 	fmt.Printf("public key hash: %s\n", hex.EncodeToString(pkHash[:20]))
 	fmt.Printf("address: %s\n", addr)
